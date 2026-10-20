@@ -163,6 +163,12 @@ against a live Page. Test each once with a real token (a text post first):
     or be refused.
   - Whether Messenger needs Advanced Access / App Review for private replies to people without a role on the app.
 
+## Workflow Library recipe
+
+**Post to Facebook when published** (`post-on-publish`): when an entry of the chosen type is published, an editor
+is asked first; once approved, its title, summary and link go to Facebook, and the post's id and link are kept on the entry
+(`facebook_post_id`, `facebook_url`).
+
 ## What it teaches Marvin
 
 A guide (`src/marvin_integration_facebook/guide.md`) that Marvin's agents read when building workflows where this Page is

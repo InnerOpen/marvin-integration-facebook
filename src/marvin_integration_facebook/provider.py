@@ -31,6 +31,7 @@ from marvin_integration_sdk import (
     IntegrationProvider,
     ProviderAction,
     Response,
+    WorkflowRecipe,
     register_provider,
 )
 
@@ -131,6 +132,63 @@ class FacebookProvider(IntegrationProvider):
     icon = "📘"
     # No packaged logo on purpose: Facebook's mark is Meta's to supply (see the README, "Logo"). The emoji is the fallback.
     guide = "guide.md"
+    # One ready-made workflow in the Workflow Library, offered once the Page is connected: post on publish, after an editor
+    # approves. The title and summary as the message, with the entry's link (Facebook shows its preview).
+    recipes = (
+        WorkflowRecipe(
+            id="post-on-publish",
+            title="Post to Facebook when published",
+            outcome=(
+                "When an entry is published, an editor is asked whether to post it; once approved, its title, summary and link go "
+                "to your Facebook Page, and the post's link is kept on the entry."
+            ),
+            category="Social and community",
+            tags=("facebook", "social", "publishing", "approval"),
+            definition={
+                "trigger": {"type": "event", "event": "entry_published"},
+                "conditions": [{"field": "entry.entry_type", "op": "eq", "value": "{{entry_type}}"}],
+                "actions": [
+                    {
+                        "kind": "approval",
+                        "id": "ok",
+                        "message": "Post “${entry.title}” to the Facebook Page? Text: ${entry.summary}",
+                        "approvers": "editor",
+                        "expires_in_hours": 48,
+                    },
+                    {
+                        "kind": "integration",
+                        "id": "post",
+                        "integration": "{{facebook_integration}}",
+                        "action": "post",
+                        "args": {"text": "${entry.title}\n\n${entry.summary}", "link": "${entry.url}", "dry_run": False},
+                        "when": {"field": "steps.ok.output.decision", "op": "eq", "value": "approved"},
+                    },
+                    {
+                        "kind": "entry",
+                        "op": "set_metadata",
+                        "metadata": {"facebook_post_id": "${steps.post.output.post_id}", "facebook_url": "${steps.post.output.url}"},
+                        "when": {"field": "steps.post.output.posted", "op": "eq", "value": True},
+                    },
+                ],
+            },
+            variables={
+                "entry_type": {
+                    "type": "entry_type_slug",
+                    "description": "Entries of this type are offered to the Facebook Page when published.",
+                    "example": "post",
+                },
+                "facebook_integration": {
+                    "type": "integration_slug",
+                    "description": "The Facebook Page connection; its Page token needs pages_manage_posts.",
+                    "example": "facebook",
+                },
+            },
+            side_effects=(
+                {"kind": "external_post", "description": "One public Facebook Page post per approved run."},
+                {"kind": "content_mutation", "description": "Sets facebook_post_id and facebook_url on the entry."},
+            ),
+        ),
+    )
 
     credentials = (
         CredentialField(
