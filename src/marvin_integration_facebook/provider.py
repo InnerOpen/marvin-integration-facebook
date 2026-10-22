@@ -179,13 +179,13 @@ class FacebookProvider(IntegrationProvider):
                 },
                 "facebook_integration": {
                     "type": "integration_slug",
-                    "description": "The Facebook Page connection; its Page token needs pages_manage_posts.",
+                    "description": "The Facebook Page connection. Its Page token needs the `pages_manage_posts` permission.",
                     "example": "facebook",
                 },
             },
             side_effects=(
                 {"kind": "external_post", "description": "One public Facebook Page post per approved run."},
-                {"kind": "content_mutation", "description": "Sets facebook_post_id and facebook_url on the entry."},
+                {"kind": "content_mutation", "description": "Saves the post's link on the entry."},
             ),
         ),
     )
