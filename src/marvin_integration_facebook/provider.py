@@ -35,7 +35,9 @@ from marvin_integration_sdk import (
     register_provider,
 )
 
+from .content import CONTENT
 from .engagement import DEFAULT_LIMIT, KIND_COMMENT, KIND_MENTION, KIND_REPLY, KINDS, NETWORK, decode_cursor, page_after, to_item
+from .webhooks import inbox_items
 
 DEFAULT_API_VERSION = "v22.0"
 MAX_IMAGES = 10  # the social.post contract's cap; Facebook itself allows more photos in one post
@@ -153,6 +155,7 @@ class FacebookProvider(IntegrationProvider):
     }
     # No packaged logo on purpose: Facebook's mark is Meta's to supply (see the README, "Logo"). The emoji is the fallback.
     guide = "guide.md"
+    content = CONTENT
     # One ready-made workflow in the Workflow Library, offered once the Page is connected: post on publish, after an editor
     # approves. The title and summary as the message, with the entry's link (Facebook shows its preview).
     recipes = (
@@ -463,6 +466,27 @@ class FacebookProvider(IntegrationProvider):
             cost_hint="free",
             requires_approval=True,
         ),
+        ProviderAction(
+            key="inbox_items",
+            label="Turn a webhook delivery into inbox items",
+            description=(
+                "Marvin's shared social.inbox_items: Meta's webhook delivery (its body, as a workflow received it) turned into "
+                "Social inbox items — Marvin keeps them in this connection's inbox. For a webhook this integration didn't create; "
+                "its own webhook's deliveries reach the inbox without a step. Reads only the payload: nothing is sent."
+            ),
+            capability="social.inbox_items",
+            input_schema={
+                "type": "object",
+                "properties": {"payload": {"type": "object", "description": "The delivery's body, e.g. ${event.payload}."}},
+                "required": ["payload"],
+                "additionalProperties": False,
+            },
+            output_schema={
+                "type": "object",
+                "properties": {"items": {"type": "array", "description": "Inbox items in Marvin's shared shape."}},
+            },
+            cost_hint="free",
+        ),
     )
 
     # ---- plumbing ---------------------------------------------------------------------------
@@ -540,6 +564,7 @@ class FacebookProvider(IntegrationProvider):
             "hide": self._action_hide,
             "delete_comment": self._action_delete_comment,
             "message": self._action_message,
+            "inbox_items": self._action_inbox_items,
         }.get(key)
         if handler is None:
             raise NotImplementedError(f"facebook has no action '{key}'")
@@ -762,6 +787,17 @@ class FacebookProvider(IntegrationProvider):
         if data.get("success") is False:
             raise IntegrationError("Facebook did not delete the comment.", code=CODE_UNKNOWN)
         return {"deleted": True, "network": NETWORK}
+
+    def _action_inbox_items(self, args: dict, ctx: IntegrationContext) -> dict:
+        """The `social.inbox_items` capability: a webhook delivery's inbox items (webhooks.py) — Marvin keeps them."""
+        payload = args.get("payload")
+        if not isinstance(payload, dict):
+            raise TypeError("inbox_items needs 'payload': the webhook delivery's body (an object).")
+        return {"items": inbox_items(payload), "network": NETWORK}
+
+    def inbox_items_from_webhook(self, payload: dict, ctx: IntegrationContext) -> list[dict]:
+        """Meta's webhook deliveries to the Facebook webhooks incoming webhook, as Social inbox items (webhooks.py)."""
+        return inbox_items(payload)
 
     def _action_message(self, args: dict, ctx: IntegrationContext) -> dict:
         """The `social.message` capability: a Messenger message to a person by page-scoped id. Meta only allows it within 24

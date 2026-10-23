@@ -111,6 +111,7 @@ DECLARED = {
     "hide": ("social.hide", False),
     "delete_comment": ("social.delete_comment", True),
     "message": ("social.message", True),
+    "inbox_items": ("social.inbox_items", False),  # 0.5.0: reads a webhook payload, sends nothing
 }
 
 

@@ -57,7 +57,21 @@ Marvin's auto-reply engine and workflow steps use these by capability name. All 
   `unsupported`. A name or handle alone is refused (`unsupported`): it can't be turned into an id. Returns `sent`,
   `message_id`, `network`.
 
+- **Turn a webhook delivery into inbox items** (`inbox_items`, `social.inbox_items`, no approval): `payload` (a Meta Page
+  webhook body, e.g. `${event.payload}`). Marvin keeps the items in this connection's Social inbox; for a webhook this
+  integration didn't create (its own **Facebook webhooks** webhook's deliveries reach the inbox without a step).
+
 There is no `social.repost` on Facebook.
+
+## Webhooks
+
+Apply the **Facebook webhooks** incoming webhook this integration offers. It is set to the `meta` verification and
+signature schemes: mint its token, generate the verify phrase, store the app's **App secret** (App settings → Basic) as
+`FACEBOOK_APP_SECRET`, then add the URL and phrase to the Meta app's Page webhooks, subscribe the Page to `feed`, `mention`
+and `messages`, and publish the app. Deliveries reach the **Social inbox** on their own — comments and replies as they
+happen, Page @mentions (which polling can't read) and Messenger messages and reactions — and workflows on the webhook start
+as usual (`${event.payload.entry.0.changes.0.value}` for a comment, `${event.payload.entry.0.messaging.0.message}` for a
+message).
 
 ## In workflows
 
@@ -70,8 +84,8 @@ Facebook can fetch (an asset's public URL works); Facebook accepts JPEG, PNG, GI
 
 - Post as a person, to a group or an event, schedule for later (use a workflow wait), or post video or a story.
 - Edit or delete a post.
-- Read Page tags or mentions (Facebook only sends those by webhook), or message someone who has not written to the Page in
-  the last 24 hours.
+- Poll Page tags or mentions (Facebook only sends those by webhook: see Webhooks), or message someone who has not written to
+  the Page in the last 24 hours.
 - Take more than 10 images in one post (Marvin's shared limit).
 
 ## When it fails
