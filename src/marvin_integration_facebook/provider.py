@@ -145,7 +145,9 @@ class FacebookProvider(IntegrationProvider):
         "meta": {
             "header": "X-Hub-Signature-256",
             "prefix": "sha256=",
-            "notes": "Meta: sha256=<hex> of the body, keyed with the app secret (App settings → Basic)",
+            # The key is the secret of the login setup the app uses: Instagram login signs with the Instagram app secret
+            # (Use cases → Instagram API → API setup with Instagram login), Facebook login with App settings → Basic.
+            "notes": "Meta: sha256=<hex> of the body, keyed with your app's secret — the Instagram app secret for Instagram login",
             "sender_issues_key": True,
         }
     }
