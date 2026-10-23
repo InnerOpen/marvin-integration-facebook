@@ -130,6 +130,25 @@ class FacebookProvider(IntegrationProvider):
     description = "Post text, links and photos to a Facebook Page, and read and answer its comments, after approval."
     category = CATEGORY_DESTINATION
     icon = "📘"
+    # Meta's webhooks, for an incoming webhook in Marvin: it checks the URL with a GET (hub.mode / hub.challenge /
+    # hub.verify_token — the WebSub handshake) before it delivers, then signs each delivery with the app secret.
+    verification_schemes: ClassVar[dict[str, dict]] = {
+        "meta": {
+            "challenge_param": "hub.challenge",
+            "token_param": "hub.verify_token",
+            "mode_param": "hub.mode",
+            "mode_values": ["subscribe"],
+            "notes": "Meta (Instagram, Facebook, WhatsApp): the verify token you type into the app's webhook settings",
+        }
+    }
+    signature_schemes: ClassVar[dict[str, dict]] = {
+        "meta": {
+            "header": "X-Hub-Signature-256",
+            "prefix": "sha256=",
+            "notes": "Meta: sha256=<hex> of the body, keyed with the app secret (App settings → Basic)",
+            "sender_issues_key": True,
+        }
+    }
     # No packaged logo on purpose: Facebook's mark is Meta's to supply (see the README, "Logo"). The emoji is the fallback.
     guide = "guide.md"
     # One ready-made workflow in the Workflow Library, offered once the Page is connected: post on publish, after an editor
