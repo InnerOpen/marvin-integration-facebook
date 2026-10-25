@@ -1,10 +1,10 @@
 [project]
 name = "marvin-integration-facebook"
-version = "0.5.1"
+version = "0.6.0"
 description = "Facebook Page integration for Marvin: post text, links and photos to a Page, and read and answer its comments, with approval."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["marvin-integration-sdk>=0.9,<1"]
+dependencies = ["marvin-integration-sdk>=0.19,<1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.11"]

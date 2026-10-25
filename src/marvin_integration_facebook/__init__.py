@@ -3,4 +3,4 @@
 from .provider import FacebookProvider
 
 __all__ = ["FacebookProvider"]
-__version__ = "0.5.1"
+__version__ = "0.6.0"

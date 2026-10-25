@@ -133,6 +133,8 @@ class FacebookProvider(IntegrationProvider):
     category = CATEGORY_DESTINATION
     icon = "📘"
     logo = "logo.png"
+    post_limits: ClassVar[dict] = {"max": 63206, "unit": "characters", "visible": 125, "links": "clickable"}
+    """A Page post: Facebook's 63,206 characters, about 125 shown before "See more" on a phone; a link in it is clickable."""
     # Meta's webhooks, for an incoming webhook in Marvin: it checks the URL with a GET (hub.mode / hub.challenge /
     # hub.verify_token — the WebSub handshake) before it delivers, then signs each delivery with the app secret.
     verification_schemes: ClassVar[dict[str, dict]] = {
