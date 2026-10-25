@@ -132,6 +132,7 @@ class FacebookProvider(IntegrationProvider):
     description = "Post text, links and photos to a Facebook Page, and read and answer its comments, after approval."
     category = CATEGORY_DESTINATION
     icon = "📘"
+    logo = "logo.png"
     # Meta's webhooks, for an incoming webhook in Marvin: it checks the URL with a GET (hub.mode / hub.challenge /
     # hub.verify_token — the WebSub handshake) before it delivers, then signs each delivery with the app secret.
     verification_schemes: ClassVar[dict[str, dict]] = {

@@ -178,9 +178,9 @@ and hiding need none.
 
 ## Logo
 
-None is shipped: the Facebook mark is Meta's to supply and must not be altered. Download it from Meta's brand resources,
-drop it beside `provider.py` as `logo.png` or `logo.svg` (at most 64 KB), and set `logo = "logo.png"` on the provider.
-Until then Marvin shows the 📘 emoji.
+`logo.png` (since 0.5.1) is the primary Facebook logo from Meta's Facebook Brand Asset Pack, scaled to 192×192 and
+otherwise unaltered, as Meta's brand rules require. Marvin shows it on the connection's card and in Social; the 📘 emoji is
+the fallback if Marvin refuses the file.
 
 ## Develop
 
